@@ -30,12 +30,15 @@ form.addEventListener('submit', async(event) => {
     console.log(signupData);
     try {
         const response = await axios.post(`${BASE_URL}/user/register`, signupData);
-        console.log(response);
+        // console.log(response);
+        if(response.status==201) {
+            alert("Successfuly signed up")
+        }
         
     } catch (error) {
         console.log(error);
         if (error.response.status == 409) {
-            alert("This email already exist in db");
+            alert("User already exists, Please Login");
         }
         else {
             alert("Something went wrong");

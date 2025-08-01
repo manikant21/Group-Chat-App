@@ -1,20 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Login Page</title>
 </head>
-<body>
+
+<body class="bg-black">
+    <div class="relative">
+        <button id="register_btn" class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer">
+            Signup/Register
+        </button>
+    </div>
+
     <div>
-        <h1>Please Login</h1>
-        <div>
-            
+        <h1 class="text-center text-4xl font-bold text-red-400 mt-2">Chat App</h1>
+
+        <h2 class="m-6 text-lg font-semibold text-white text-center text-2xl">Login</h2>
+        <div class="flex justify-center mt-10 h-screen">
+
+            <form class="text-white space-y-4" id="form_login">
+
+                <div>
+                    <label for="email_login" class="block mb-1">Enter Your Email:</label>
+                    <input type="email" id="email_login" name="email_login"
+                        class="border w-[250px] px-2 py-1 focus:ring-blue-300" required>
+                </div>
+
+                <div>
+                    <label for="password_login" class="block mb-1">Enter Your Password:</label>
+                    <input type="password" id="password_login" name="password_login"
+                        class="border w-[250px] px-2 py-1 focus:ring-blue-300" required>
+                </div>
+
+                <br>
+                <button type="submit"
+                    class="cursor-pointer bg-blue-400 p-2 rounded-sm focus:ring-blue-300">Login</button>
+            </form>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script type="module" src="../js/login.js"></script>
 </body>
+
 </html>

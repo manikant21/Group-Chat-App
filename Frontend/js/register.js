@@ -5,9 +5,14 @@ let name = document.getElementById("name");
 let email = document.getElementById("email_register");
 let phone = document.getElementById("no_register");
 let password = document.getElementById("password_register");
+let login_btn = document.getElementById("login_btn");
 
 
 // console.log(BASE_URL);
+
+login_btn.addEventListener('click', () => {
+    window.location.href = "login.html"
+})
 
 
 form.addEventListener('submit', async(event) => {

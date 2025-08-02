@@ -1,4 +1,5 @@
 import { BASE_URL } from "./constant.js";
+axios.defaults.withCredentials = true;
 let form = document.getElementById("form_login");
 let email = document.getElementById("email_login");
 let password = document.getElementById("password_login");
@@ -11,7 +12,7 @@ register_btn.addEventListener('click', () => {
 
 
 
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async(e) => {
     e.preventDefault();
     if(email.value =="" || password.value==""){
           alert("Please fill requred fields!!");
@@ -22,13 +23,20 @@ form.addEventListener('submit', (e) => {
         password: password.value
 
     }
-    console.log(loginData);
+    // console.log(loginData);
     try {
-        
+        const response = await axios.post(`${BASE_URL}/user/login`, loginData);
+         if(response.status==201) {
+            alert("Successfuly logged in")
+        }
         
     } catch (error) {
         console.log(error);
          if (error.response.status == 404) {
+            alert("User not found");
+        }
+
+         if (error.response.status == 401) {
             alert("Please enter valid credentials");
         }
         else {
@@ -38,3 +46,4 @@ form.addEventListener('submit', (e) => {
     }
     form.reset();
 })
+

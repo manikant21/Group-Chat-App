@@ -1,4 +1,5 @@
 import { BASE_URL } from "./constant.js";
+axios.defaults.withCredentials = true;
 // const BASE_URL = "http://localhost:3000/api/v1";
 let form = document.getElementById("form_register");
 let name = document.getElementById("name");

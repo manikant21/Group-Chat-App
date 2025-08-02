@@ -96,7 +96,7 @@ export const logoutUser = (req: Request<{}, {}, {}>, res: Response) => {
             httpOnly: true,
             sameSite: "lax"
         });
-          res.status(200).json({ message: "Logged out successfully" });
+          res.status(201).json({ message: "Logged out successfully" });
 
     } catch (error) {
         console.error("Login error:", error);

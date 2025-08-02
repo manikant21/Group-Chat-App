@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="relative bg-white h-screen flex flex-col items-center justify-between">
+
+  <button id="logout_btn"
+    class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer z-50">
+    Logout
+  </button>
+    <header class="text-center text-2xl font-semibold p-4 border-b w-full">
+        Chat App
+    </header>
+
+    <main class="flex-1 w-full flex justify-center">
+        <div id="chatArea" class="flex flex-col space-y-2 p-4 w-full max-w-xl overflow-y-auto"></div>
+    </main>
+
+    <footer class="bg-slate-800 p-2 w-full flex justify-center">
+        <div class="flex w-full max-w-xl">
+            <input id="chatInput" type="text" placeholder="Type a message..."
+                class="flex-1 p-2 rounded-l border border-green-300 text-white focus:outline-none" />
+            <button id="sendBtn" class="bg-white px-4 py-2 rounded-r text-slate-800 font-medium">
+                Send
+            </button>
+        </div>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="../js/home.js"></script>
+</body>
+
+</html>

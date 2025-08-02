@@ -16,17 +16,17 @@ login_btn.addEventListener('click', () => {
 })
 
 
-form.addEventListener('submit', async(event) => {
+form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if(name.value === "" || email.value === "" || phone.value === "" || password.value === "") {
+    if (name.value === "" || email.value === "" || phone.value === "" || password.value === "") {
         alert("Please fill requred fields!!");
         return;
     }
-//     let phoneNum = Number(phone.value);
-//     if (isNaN(phoneNum)) {
-//   alert("Phone must be a number");
-//   return;
-// }
+    //     let phoneNum = Number(phone.value);
+    //     if (isNaN(phoneNum)) {
+    //   alert("Phone must be a number");
+    //   return;
+    // }
     let signupData = {
         name: name.value,
         email: email.value,
@@ -37,10 +37,11 @@ form.addEventListener('submit', async(event) => {
     try {
         const response = await axios.post(`${BASE_URL}/user/register`, signupData);
         // console.log(response);
-        if(response.status==201) {
+        if (response.status == 201) {
             alert("Successfuly signed up")
+            window.location.href = "home.html";
         }
-        
+
     } catch (error) {
         console.log(error);
         if (error.response.status == 409) {
@@ -53,9 +54,9 @@ form.addEventListener('submit', async(event) => {
 
     }
     form.reset();
-    
 
 
 
-    
+
+
 })

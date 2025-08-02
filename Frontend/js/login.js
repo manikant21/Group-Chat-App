@@ -27,7 +27,8 @@ form.addEventListener('submit', async(e) => {
     try {
         const response = await axios.post(`${BASE_URL}/user/login`, loginData);
          if(response.status==201) {
-            alert("Successfuly logged in")
+            alert("Successfuly logged in");
+            window.location.href = "home.html";
         }
         
     } catch (error) {

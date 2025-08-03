@@ -23,12 +23,16 @@ form.addEventListener('submit', async(e) => {
         password: password.value
 
     }
-    // console.log(loginData);
+   
     try {
         const response = await axios.post(`${BASE_URL}/user/login`, loginData);
+        console.log(response);
          if(response.status==201) {
             alert("Successfuly logged in");
-            window.location.href = "home.html";
+              localStorage.setItem("token", response.data.token);
+              form.reset();
+            window.location.href = "./home.html"
+        
         }
         
     } catch (error) {
@@ -42,9 +46,10 @@ form.addEventListener('submit', async(e) => {
         }
         else {
             alert("Something went wrong");
-            console.log("Internal server error");
+            console.log("Internal server error");  
         }
+            
     }
-    form.reset();
+
 })
 

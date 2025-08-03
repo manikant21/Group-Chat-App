@@ -37,13 +37,17 @@ export const registerUser = async (req: Request<{}, {}, RegisterUserRequestBody>
             password: hashedPassword
         });
         const { password: _, ...userWithoutPassword } = user.get({ plain: true });
-        const token = generateAccessToken(user.id);
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 3600000
-        });
-        return res.status(201).json({ data: userWithoutPassword });
+        const token = generateAccessToken(userWithoutPassword.id);
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     sameSite: 'lax',
+        //     secure: false,
+        //     maxAge: 3600000,
+        //     path: '/',
+        //     domain: undefined
+        // });
+        console.log(token);
+        return res.status(201).json({ data: userWithoutPassword , token});
 
 
     } catch (error) {
@@ -76,30 +80,35 @@ export const loginUser = async (req: Request<{}, {}, LoginUserRequestBody>, res:
             return res.status(401).json({ msg: "User not authorized" })
         }
         const token = generateAccessToken(checkEmail.id);
-        res.cookie("token", token, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 3600000
-        });
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     sameSite: 'lax',
+        //     secure: false,
+        //     maxAge: 3600000,
+        //     path: '/',
+        //     domain: undefined
+        // });
+        // console.log(token);
 
-        return res.status(201).json({ msg: "User logged in succcessfully!" })
 
-    } catch (error) {
-        console.error("Login error:", error);
-        return res.status(500).json("Something went wrong");
-    }
-}
-
-export const logoutUser = (req: Request<{}, {}, {}>, res: Response) => {
-    try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            sameSite: "lax"
-        });
-          res.status(201).json({ message: "Logged out successfully" });
+        return res.status(201).json({ msg: "User logged in succcessfully!", token })
 
     } catch (error) {
         console.error("Login error:", error);
         return res.status(500).json("Something went wrong");
     }
 }
+
+// export const logoutUser = (req: Request<{}, {}, {}>, res: Response) => {
+//     try {
+//         res.clearCookie("token", {
+//             httpOnly: true,
+//             sameSite: "lax"
+//         });
+//         res.status(201).json({ message: "Logged out successfully" });
+
+//     } catch (error) {
+//         console.error("Login error:", error);
+//         return res.status(500).json("Something went wrong");
+//     }
+// }

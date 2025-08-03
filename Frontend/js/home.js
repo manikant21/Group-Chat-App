@@ -1,6 +1,7 @@
 import { BASE_URL } from "./constant.js";
 
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
+const token = localStorage.getItem("token")
 
 const chatArea = document.getElementById("chatArea");
 const chatInput = document.getElementById("chatInput");
@@ -8,17 +9,9 @@ const sendBtn = document.getElementById("sendBtn");
 const logout_btn = document.getElementById("logout_btn");
 
 // Logout handler
-logout_btn.addEventListener("click", async () => {
-  try {
-    const response = await axios.post(`${BASE_URL}/user/logout`, {});
-    console.log(response);
-    if (response.status === 201) {
-      alert("Successfully logged out!");
-      window.location.href = "login.html";
-    }
-  } catch (error) {
-    console.error("Logout failed", error);
-  }
+logout_btn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    window.location.href = "./login.html";
 });
 
 // Add message to chat area
@@ -34,10 +27,19 @@ const addMessage = (text, isSelf = false) => {
 };
 
 
-// Send button click
-sendBtn.addEventListener("click", () => {
+sendBtn.addEventListener("click", async() => {
   const message = chatInput.value.trim();
+    try {
   if (message) {
+    const response = await axios.post(`${BASE_URL}/message/addmessage`, {message: message}, {
+          headers: {
+                "Authorization": `Bearer ${token}`
+            }
+    });
+     if(response.status==201) {
+            alert("Message added successfuly");
+            console.log(response.data);
+        }
     addMessage(message, true);
     chatInput.value = "";
 
@@ -46,6 +48,12 @@ sendBtn.addEventListener("click", () => {
       addMessage("Vaibhav: Got it!");
     }, 1000);
   }
+
+}
+
+  catch (error) {
+        
+    }
 });
 
 // Enter key support

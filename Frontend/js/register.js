@@ -36,10 +36,16 @@ form.addEventListener('submit', async (event) => {
     console.log(signupData);
     try {
         const response = await axios.post(`${BASE_URL}/user/register`, signupData);
-        // console.log(response);
+        console.log(response);
         if (response.status == 201) {
             alert("Successfuly signed up")
-            window.location.href = "home.html";
+            localStorage.setItem("token", response.data.token);
+            form.reset();
+
+            window.location.href = "./home.html"
+            // window.open('./home.html', '_self');
+
+            //  setTimeout(() => window.location.href = "./home.html", 1000);
         }
 
     } catch (error) {
@@ -53,7 +59,7 @@ form.addEventListener('submit', async (event) => {
         }
 
     }
-    form.reset();
+   
 
 
 

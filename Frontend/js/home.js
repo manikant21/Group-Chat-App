@@ -67,7 +67,7 @@ sendBtn.addEventListener("click", async() => {
             }
     });
      if(response.status==201) {
-            alert("Message added successfuly");
+            // alert("Message added successfuly");
             console.log(response.data);
         }
     
@@ -92,16 +92,17 @@ chatInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendBtn.click();
 });
 
-window.onload = async () => {
+setInterval( async () => {
   try {
     const response = await axios.get(`${BASE_URL}/message/getmessage`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(response);
+    // console.log(response);
     const messages = response.data.data;
-    console.log(messages);
+    // console.log(messages);
+    chatArea.innerHTML = "";
     for(let i=0;i<messages.length;i++) {
           const isAlternate = i % 2 === 0;
         addMessage(messages[i].content, true, isAlternate);
@@ -109,6 +110,6 @@ window.onload = async () => {
   } catch (error) {
     console.error("Failed to load messages on refresh", error);
   }
-};
+}, 2000);
 
 

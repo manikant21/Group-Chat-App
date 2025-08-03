@@ -25,3 +25,18 @@ export const messageByAUser = async (req: AuthenticatedRequest & { body: userMes
         return res.status(500).json("Something went wrong");
     }
 }
+
+export const getMessageByAUser = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user.id;
+        const message = await Message.findAll({
+            where: {
+                userId: userId
+            }
+        })
+         return res.status(201).json({ data: message });
+    } catch (error) {
+         console.error("Fetching Message Error:", error);
+        return res.status(500).json("Something went wrong");
+    }
+}

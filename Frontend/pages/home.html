@@ -10,15 +10,18 @@
 
 <body class="relative bg-white h-screen flex flex-col items-center justify-between">
 
-  <button id="logout_btn"
-    class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer z-50">
-    Logout
-  </button>
+    <button id="logout_btn" class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer z-50">
+        Logout
+    </button>
     <header class="text-center text-2xl font-semibold p-4 border-b w-full">
         Chat App
     </header>
 
-    <main class="flex-1 w-full flex justify-center">
+    <main class="flex-1 w-full flex justify-center items-center">
+        <button id="seeOlderBtn" class="mb-2 px-4 py-1 bg-gray-200 rounded text-sm text-black hover:bg-gray-300">
+            See Older Messages
+        </button>
+
         <div id="chatArea" class="flex flex-col gap-2 p-4 h-[500px] overflow-y-auto "></div>
     </main>
 

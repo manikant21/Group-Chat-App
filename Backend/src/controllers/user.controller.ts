@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model.js";
 import { JWT_SECRET } from "../config/server.config.js";
+import { Op } from "sequelize";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 
@@ -95,6 +96,27 @@ export const loginUser = async (req: Request<{}, {}, LoginUserRequestBody>, res:
 
     } catch (error) {
         console.error("Login error:", error);
+        return res.status(500).json("Something went wrong");
+    }
+}
+
+interface AuthenticatedRequest extends Request {
+    user?: any
+}
+
+export const getAllUser = async(req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user.id
+        const users = await User.findAll({
+            where: {
+                id: {
+                    [Op.not]: userId
+                }
+            }
+        })
+        return res.status(200).json({data: users});
+    } catch (error) {
+         console.error("Fetching All user name error:", error);
         return res.status(500).json("Something went wrong");
     }
 }

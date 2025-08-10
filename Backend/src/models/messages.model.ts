@@ -6,6 +6,7 @@ interface messageAttributes {
     id: number,
     content: string,
     userId: number,
+    groupId?: number | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -16,6 +17,7 @@ export class Message extends Model<messageAttributes, messageCreationAttributes>
     id!: number;
     content!: string;
     userId!: number;
+    groupId?: number | null;
 }
 
 Message.init(
@@ -34,7 +36,11 @@ Message.init(
         userId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
-        }
+        },
+        groupId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+        },
     },
     {
         sequelize,

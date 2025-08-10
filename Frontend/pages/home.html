@@ -2,42 +2,149 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat App</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body class="relative bg-white h-screen flex flex-col items-center justify-between">
 
-    <button id="logout_btn" class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer z-50">
-        Logout
-    </button>
-    <header class="text-center text-2xl font-semibold p-4 border-b w-full">
-        Chat App
-    </header>
+  <button id="logout_btn"
+    class="absolute top-4 right-4 bg-purple-200 p-2 rounded-sm cursor-pointer z-50">Logout</button>
 
-    <main class="flex-1 w-full flex justify-center items-center">
-        <button id="seeOlderBtn" class="mb-2 px-4 py-1 bg-gray-200 rounded text-sm text-black hover:bg-gray-300">
-            See Older Messages
-        </button>
+  <header class="text-center text-2xl font-semibold p-4 border-b w-full">
+    Chat App
+  </header>
 
-        <div id="chatArea" class="flex flex-col gap-2 p-4 h-[500px] overflow-y-auto "></div>
-    </main>
+  <main class="flex-1 w-full flex flex-col items-center p-4">
 
-    <footer class="bg-slate-800 p-2 w-full flex justify-center">
-        <div class="flex w-full max-w-xl">
-            <input id="chatInput" type="text" placeholder="Type a message..."
-                class="flex-1 p-2 rounded-l border border-green-300 text-white focus:outline-none" />
-            <button id="sendBtn" class="bg-white px-4 py-2 rounded-r text-slate-800 font-medium">
-                Send
-            </button>
+    <div class="flex flex-wrap gap-3 mb-4">
+      <button id="seeOlderBtn"
+        class="px-4 py-1 bg-gray-200 rounded text-sm text-black hover:bg-gray-300">
+        See Older Messages
+      </button>
+
+      <button id="fetchGroupsBtn"
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+        Show My Groups
+      </button>
+
+      <button id="seeUsersBtn"
+        class="px-4 py-1 bg-blue-200 rounded text-sm text-black hover:bg-blue-300">
+        See All Users
+      </button>
+
+      <button id="openModalBtn"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        + Create Group
+      </button>
+    </div>
+
+    <div id="groupsList" class="mt-4 w-full max-w-lg"></div>
+
+    <div id="chatArea" class="flex flex-col gap-2 p-4 h-[500px] overflow-y-auto"></div>
+  </main>
+
+  <footer class="bg-slate-800 p-2 w-full flex justify-center">
+    <div class="flex w-full max-w-xl">
+      <input id="chatInput" type="text" placeholder="Type a message..."
+        class="flex-1 p-2 rounded-l border border-green-300 text-white focus:outline-none" />
+      <button id="sendBtn" class="bg-white px-4 py-2 rounded-r text-slate-800 font-medium">
+        Send
+      </button>
+    </div>
+  </footer>
+
+  <!-- Create Group Modal -->
+  <div id="modalBackdrop"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
+      <button id="closeModalBtn"
+        class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
+        ✕
+      </button>
+
+      <h2 class="text-xl font-semibold mb-4">Create New Group</h2>
+
+      <form id="createGroupForm" class="space-y-4">
+        <div>
+          <label for="groupName" class="block text-sm font-medium text-gray-700">Group Name</label>
+          <input type="text" id="groupName"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
+            required>
         </div>
-    </footer>
+
+        <div>
+          <label for="groupDescription"
+            class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="groupDescription" rows="2"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"></textarea>
+        </div>
+
+        <div>
+          <label for="groupUsers" class="block text-sm font-medium text-gray-700">Add Users</label>
+          <select id="groupUsers" multiple
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300">
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Cmd (Mac) to select multiple users</p>
+        </div>
+
+        <button type="submit"
+          class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          Create Group
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Member Modal -->
+  <div id="addMemberModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow-lg w-96 relative">
+      <button id="closeAddMemberModal"
+        class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">✕</button>
+      <h2 class="text-lg font-bold mb-4">Add Members</h2>
+      <div id="modalUserList" class="mb-4 max-h-60 overflow-y-auto"></div>
+      <div class="flex justify-end gap-2">
+        <button id="modalCloseBtn" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+        <button id="modalAddBtn" class="px-4 py-2 bg-blue-500 text-white rounded">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User List Modal (shows all registered users) -->
+<div id="userListModal" class="hidden fixed top-20 right-10 bg-white border border-gray-300 p-4 rounded shadow-lg w-60 z-40">
+  <h3 class="font-semibold text-lg mb-2">Registered Users</h3>
+  <ul id="userList" class="text-sm text-gray-800 space-y-1 max-h-64 overflow-y-auto"></ul>
+</div>
+
+<!-- Your existing HTML here... -->
+
+<!-- Chat Modal -->
+<div id="chatModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+  <div class="bg-white rounded-lg w-full max-w-lg shadow-lg flex flex-col">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 id="chatGroupName" class="font-bold">Group Chat</h2>
+      <button id="closeChatBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+    </div>
+    <div id="chatMessages" class="p-4 flex-1 overflow-y-auto space-y-2">
+      <!-- Messages will be appended here -->
+    </div>
+    <form id="chatForm" class="p-4 border-t flex">
+      <input id="chatInput_group" type="text" placeholder="Type a message..."
+        class="flex-1 border rounded px-3 py-2 mr-2" required />
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+    </form>
+  </div>
+</div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script type="module" src="../js/home.js"></script>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script type="module" src="../js/home.js"></script>
+
 </body>
-
 </html>

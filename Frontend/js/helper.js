@@ -102,3 +102,72 @@ export async function addUsersToGroup(groupId, userIds) {
         return false;
     }
 }
+
+
+// helper.js additions
+export async function addAdminsToGroup(groupId, userIds) {
+  try {
+    const token = localStorage.getItem("token");
+    await axios.post(`${BASE_URL}/group/${groupId}/addadmin`, { userIds }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return true;
+  } catch (err) {
+    console.error("addAdminsToGroup error", err);
+    return false;
+  }
+}
+
+export async function removeAdminsFromGroup(groupId, userIds) {
+  try {
+    const token = localStorage.getItem("token");
+    const res= await axios.post(`${BASE_URL}/group/${groupId}/removeadmins`, { userIds }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log(res);
+    return true;
+  } catch (err) {
+    console.error("removeAdminsFromGroup error", err);
+    return false;
+  }
+}
+
+export async function removeUsersFromGroup(groupId, userIds) {
+  try {
+    const token = localStorage.getItem("token");
+    await axios.post(`${BASE_URL}/group/${groupId}/removemembers`, { userIds }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return true;
+  } catch (err) {
+    console.error("removeMembersFromGroup error", err);
+    return false;
+  }
+}
+
+export async function getGroupAdmins(groupId) {
+  const token = localStorage.getItem("token");
+  const res = await axios.get(`${BASE_URL}/group/${groupId}/fetchadmin`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  console.log(res);
+  return res.data?.data?.admins || [];
+}
+
+export async function getGroupMembers(groupId) {
+  const token = localStorage.getItem("token");
+  const res = await axios.get(`${BASE_URL}/group/${groupId}/member`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  console.log(res);
+  return res.data.availableUsers || [];
+}
+
+export async function getNonAdminMembers(groupId) {
+   const token = localStorage.getItem("token");
+  const res = await axios.get(`${BASE_URL}/group/${groupId}/nonadmin`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data.message|| [];
+}
+

@@ -20,7 +20,8 @@ export class Group extends Model<groupAttributes, groupCreationAttributes> imple
    description?: string;
    ownerId!: number;
 
-   public Users?: User[];
+//    public Users?: User[];
+   public owner?: User[];
 }
 
 Group.init(

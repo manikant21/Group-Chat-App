@@ -1,5 +1,7 @@
 import { sequelize } from "../config/db.config.js";
 import { DataTypes, Model, Optional } from "sequelize";
+import { Group } from "./group.model.js";
+import {User} from "./user.model.js";
 interface userGroupAttributes {
     id: number;
     userId: number;
@@ -14,6 +16,11 @@ export class UserGroup extends Model<userGroupAttributes, userGroupCreationAttri
     id!: number;
     userId!: number;
     groupId!: number;
+
+    public Group?: Group;
+    public User?: User;
+
+    public readonly createdAt!: Date;
 }
 
 UserGroup.init(

@@ -80,7 +80,7 @@ export async function getAvailableUsersForGroup(groupId) {
         const res = await axios.get(`${BASE_URL}/group/${groupId}/availableusers`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        console.log(res);
+        // console.log(res);
         return res.data.availableUsers;
     } catch (err) {
         console.error("Error fetching available users:", err);
@@ -124,7 +124,7 @@ export async function removeAdminsFromGroup(groupId, userIds) {
     const res= await axios.post(`${BASE_URL}/group/${groupId}/removeadmins`, { userIds }, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log(res);
+    // console.log(res);
     return true;
   } catch (err) {
     console.error("removeAdminsFromGroup error", err);
@@ -150,7 +150,7 @@ export async function getGroupAdmins(groupId) {
   const res = await axios.get(`${BASE_URL}/group/${groupId}/fetchadmin`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  console.log(res);
+  // console.log(res);
   return res.data?.data?.admins || [];
 }
 
@@ -159,7 +159,7 @@ export async function getGroupMembers(groupId) {
   const res = await axios.get(`${BASE_URL}/group/${groupId}/member`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  console.log(res);
+  // console.log(res);
   return res.data.availableUsers || [];
 }
 

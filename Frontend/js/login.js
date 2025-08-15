@@ -1,5 +1,5 @@
 import { BASE_URL } from "./constant.js";
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 let form = document.getElementById("form_login");
 let email = document.getElementById("email_login");
 let password = document.getElementById("password_login");

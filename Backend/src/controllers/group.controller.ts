@@ -86,7 +86,7 @@ export const getMyGroups = async (req: AuthenticatedRequest, res: Response) => {
             include: [
                 {
                     model: Group,
-                    attributes: ["id", "name", "description"]
+                    attributes: ["id", "name", "description", "ownerId"]
                 }
             ]
         });
@@ -94,6 +94,7 @@ export const getMyGroups = async (req: AuthenticatedRequest, res: Response) => {
             id: userGroup.Group?.id,
             name: userGroup.Group?.name,
             description: userGroup.Group?.description,
+            ownerId: userGroup.Group?.ownerId,
             joinedAt: userGroup.createdAt  // When user joined this group
         }));
 
@@ -520,4 +521,42 @@ export const getGroupMembersWithAdminStatus = async (req: AuthenticatedRequest, 
         console.error(error);
         res.status(500).json({ message: "Failed to fetch group members" });
     }
+};
+
+export const deleteGroup = async (req: AuthenticatedRequest, res: Response) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const userId: number = req.user.id;
+    const { groupId } = req.params;
+
+    // 1. Check ownership
+    const group = await Group.findOne({
+      where: { id: groupId, ownerId: userId },
+      transaction
+    });
+
+    if (!group) {
+      await transaction.rollback();
+      return res.status(401).json({ message: "User is not authorized to delete this group!" });
+    }
+
+    // 2. Delete related records (if cascade isn’t enabled)
+    await Message.destroy({ where: { groupId }, transaction });
+    await UserGroup.destroy({ where: { groupId }, transaction });
+    await GroupAdmin.destroy({ where: { groupId }, transaction });
+
+    // 3. Delete the group
+    await Group.destroy({
+      where: { id: groupId, ownerId: userId },
+      transaction
+    });
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Group and related data deleted successfully" });
+
+  } catch (error) {
+    console.error(error);
+    await transaction.rollback();
+    res.status(500).json({ message: "Failed to delete group" });
+  }
 };

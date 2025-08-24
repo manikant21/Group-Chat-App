@@ -1,6 +1,7 @@
 import { User, Message, Group, UserGroup } from "../models/index.model.js";
 import { Request, Response } from "express";
 import { Op } from "sequelize";
+import { getIo } from "../services/socketManager.js";
 
 interface AuthenticatedRequest extends Request {
     user?: any
@@ -15,12 +16,26 @@ export const messageByAUser = async (req: AuthenticatedRequest & { body: userMes
         const userId = req.user.id;
         const {message} = req.body;
 
-        const messages = await Message.create({
+        const newMessage = await Message.create({
             content: message,
             userId: userId,
             groupId: null 
         })
-         return res.status(201).json({ data: messages });
+        //  return res.status(201).json({ data: messages });
+         // Fetch user details for the message
+        const messageWithUser = await Message.findByPk(newMessage.id, {
+            include: [{ model: User, attributes: ["id", "name"] }],
+            nest: true,
+            raw: true
+        });
+
+        if (messageWithUser) {
+            // Emit the message to all clients in the global chat room
+            getIo().to("global-chat").emit("new_global_message", messageWithUser);
+        }
+
+        return res.status(201).json({ data: newMessage });
+
 
     } catch (error) {
         console.error("Posting Message Error:", error);
@@ -116,20 +131,47 @@ export const getGroupMessages = async (req: AuthenticatedRequest, res: Response)
   }
 };
 
+// export const postGroupMessage = async (req: AuthenticatedRequest, res: Response) => {
+//   try {
+
+//     const { id } = req.params;
+//     const { content } = req.body;
+//     const userId = req.user.id;
+//     const groupId = Number(id);
+
+//     const newMsg = await Message.create({ content, userId, groupId });
+
+//     res.status(201).json({ data: newMsg });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to send message" });
+//   }
+// };
+
 export const postGroupMessage = async (req: AuthenticatedRequest, res: Response) => {
-  try {
+    try {
+        const { id: groupId } = req.params;
+        const { content } = req.body;
+        const userId = req.user.id;
 
-    const { id } = req.params;
-    const { content } = req.body;
-    const userId = req.user.id;
-    const groupId = Number(id);
+        const newMsg = await Message.create({ content, userId, groupId: Number(groupId) });
 
-    const newMsg = await Message.create({ content, userId, groupId });
+        const messageWithUser = await Message.findByPk(newMsg.id, {
+            include: [{ model: User, attributes: ["id", "name"] }],
+            nest: true,
+            raw: true
+        });
 
-    res.status(201).json({ data: newMsg });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to send message" });
-  }
+        if (messageWithUser) {
+            // Emit the message to all clients in the group's room
+            getIo().to(`group-${groupId}`).emit("new_group_message", messageWithUser);
+        }
+
+        res.status(201).json({ data: newMsg });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to send message" });
+    }
 };
+
 

@@ -40,6 +40,7 @@ form.addEventListener('submit', async (event) => {
         if (response.status == 201) {
             alert("Successfuly signed up")
             localStorage.setItem("token", response.data.token);
+            localStorage.setItem("userId", response.data.userId);
             form.reset();
 
             window.location.href = "./home.html"

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../../middlewares/auth.js";
-import { createGroup, getMyGroups, addMemberIfNotExists, getAvailableUsersForGroup, addAdmins, removeAdmins, fetchAdmin, removeMembers, getGroupMembers, getNonAdminMember, getGroupMembersWithAdminStatus } from "../../controllers/group.controller.js";
+import { createGroup, getMyGroups, addMemberIfNotExists, getAvailableUsersForGroup, addAdmins, removeAdmins, fetchAdmin, removeMembers, getGroupMembers, getNonAdminMember, getGroupMembersWithAdminStatus, deleteGroup } from "../../controllers/group.controller.js";
 
 const router = Router();
 
@@ -14,7 +14,8 @@ router.get("/:groupId/fetchadmin", verifyJWT, fetchAdmin);
 router.post("/:groupId/removemembers", verifyJWT, removeMembers);
 router.get("/:groupId/member", verifyJWT, getGroupMembers);
 router.get("/:groupId/nonadmin", verifyJWT, getNonAdminMember);
-router.get("/:groupId/allmembers", verifyJWT, getGroupMembersWithAdminStatus)
+router.get("/:groupId/allmembers", verifyJWT, getGroupMembersWithAdminStatus);
+router.delete("/:groupId/deletegroup", verifyJWT, deleteGroup);
 
 
 

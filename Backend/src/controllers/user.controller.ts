@@ -48,7 +48,8 @@ export const registerUser = async (req: Request<{}, {}, RegisterUserRequestBody>
         //     domain: undefined
         // });
         console.log(token);
-        return res.status(201).json({ data: userWithoutPassword , token});
+        const userId = user.id;
+        return res.status(201).json({ data: userWithoutPassword , token, userId});
 
 
     } catch (error) {
@@ -90,9 +91,10 @@ export const loginUser = async (req: Request<{}, {}, LoginUserRequestBody>, res:
         //     domain: undefined
         // });
         // console.log(token);
+        
+        const userId = checkEmail.id;
 
-
-        return res.status(201).json({ msg: "User logged in succcessfully!", token })
+        return res.status(201).json({ msg: "User logged in succcessfully!", token, userId })
 
     } catch (error) {
         console.error("Login error:", error);

@@ -1,4 +1,4 @@
-import { User, Message, Group, UserGroup } from "../models/index.model.js";
+import { User, Message, Group, UserGroup, Attachment } from "../models/index.model.js";
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import { getIo } from "../services/socketManager.js";
@@ -14,15 +14,15 @@ interface userMessage {
 export const messageByAUser = async (req: AuthenticatedRequest & { body: userMessage }, res: Response) => {
     try {
         const userId = req.user.id;
-        const {message} = req.body;
+        const { message } = req.body;
 
         const newMessage = await Message.create({
             content: message,
             userId: userId,
-            groupId: null 
+            groupId: null
         })
         //  return res.status(201).json({ data: messages });
-         // Fetch user details for the message
+        // Fetch user details for the message
         const messageWithUser = await Message.findByPk(newMessage.id, {
             include: [{ model: User, attributes: ["id", "name"] }],
             nest: true,
@@ -49,34 +49,37 @@ export const getMessageByAUser = async (req: AuthenticatedRequest, res: Response
         const maxId = req.query.lastMessageId;
         let message;
         if (maxId == undefined || isNaN(Number(maxId))) {
-                message = await Message.findAll({
-           where: {
+            message = await Message.findAll({
+                where: {
                     groupId: null  // Only fetch global messages
                 },
-            include: {
-                model: User,
-                attributes: ["name"]
-            }
-        })
+                include: [
+                    { model: User, attributes: ["name"] },
+                    { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+                ],
+                limit: 10,
+                order: [["id", "DESC"]],
+            })
+            return res.status(201).json({ data: message.reverse() });
         }
         else {
-             message = await Message.findAll({
-            where: {
-               groupId: null,
-                id: {
-                    [Op.gt]: Number(maxId)
-                }
-            },
-            include: {
-                model: User,
-                attributes: ["name"]
-            }
-        })
+            message = await Message.findAll({
+                where: {
+                    groupId: null,
+                    id: {
+                        [Op.gt]: Number(maxId)
+                    }
+                },
+                include: [
+                    { model: User, attributes: ["name"] },
+                    { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+                ],
+            })
         }
-    
-         return res.status(201).json({ data: message });
+
+        return res.status(201).json({ data: message });
     } catch (error) {
-         console.error("Fetching Message Error:", error);
+        console.error("Fetching Message Error:", error);
         return res.status(500).json("Something went wrong");
     }
 }
@@ -85,15 +88,20 @@ export const getMessageByAUser = async (req: AuthenticatedRequest, res: Response
 export const getOlderMessages = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const beforeId = Number(req.query.beforeMessageId);
+
         const messages = await Message.findAll({
             where: {
                 id: { [Op.lt]: beforeId },
-                 groupId: null
+                groupId: null, // only global messages
             },
             limit: 10,
-            order: [['id', 'DESC']],
-            include: { model: User, attributes: ["name"] }
+            order: [["id", "DESC"]],
+            include: [
+                { model: User, attributes: ["name"] },
+                { model: Attachment, attributes: ["fileUrl", "fileName", "fileType", "size"], as: "attachments", },
+            ],
         });
+
         res.status(200).json({ data: messages.reverse() });
     } catch (error) {
         console.error("Error fetching older messages:", error);
@@ -104,31 +112,34 @@ export const getOlderMessages = async (req: AuthenticatedRequest, res: Response)
 
 
 export const getGroupMessages = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id: groupId } = req.params;
-    const userId = req.user.id; 
-    const checkExistingmember = await UserGroup.findOne({
-        where: {
-            groupId,
-            userId
+    try {
+        const { id: groupId } = req.params;
+        const userId = req.user.id;
+        const checkExistingmember = await UserGroup.findOne({
+            where: {
+                groupId,
+                userId
+            }
+        });
+
+        if (!checkExistingmember) {
+            return res.status(404).json({ message: "Not authorized" })
         }
-    });
 
-    if(!checkExistingmember) {
-        return res.status(404).json({ message: "Not authorized"})
+        const messages = await Message.findAll({
+            where: { groupId },
+            include: [
+                { model: User, attributes: ["id", "name"] },
+                { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+            ],
+            order: [["createdAt", "ASC"]]
+        });
+
+        res.json({ data: messages });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to fetch messages" });
     }
-
-    const messages = await Message.findAll({
-      where: { groupId },
-      include: [{ model: User, attributes: ["id", "name"] }],
-      order: [["createdAt", "ASC"]]
-    });
-
-    res.json({ data: messages });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch messages" });
-  }
 };
 
 // export const postGroupMessage = async (req: AuthenticatedRequest, res: Response) => {

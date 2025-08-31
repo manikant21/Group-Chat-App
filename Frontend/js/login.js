@@ -31,6 +31,7 @@ form.addEventListener('submit', async(e) => {
             alert("Successfuly logged in");
               localStorage.setItem("token", response.data.token);
               localStorage.setItem("userId", response.data.userId);
+              localStorage.setItem("userName", response.data.name);
               form.reset();
             window.location.href = "./home.html"
         

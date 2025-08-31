@@ -10,7 +10,9 @@ export const init = (httpServer: any) => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: false
-        }
+        },
+         allowEIO3: true, // Add this for compatibility
+        transports: ['websocket', 'polling'] // Add polling as fallback
     });
     return io;
 };

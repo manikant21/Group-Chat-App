@@ -4,7 +4,7 @@ import { Model, Optional, DataTypes } from "sequelize";
 
 interface messageAttributes {
     id: number,
-    content: string,
+    content?: string | null,
     userId: number,
     groupId?: number | null;
     createdAt?: Date;
@@ -15,9 +15,13 @@ interface messageCreationAttributes extends Optional<messageAttributes, 'id'> { 
 
 export class Message extends Model<messageAttributes, messageCreationAttributes> implements messageAttributes {
     id!: number;
-    content!: string;
+    content?: string| null;
     userId!: number;
     groupId?: number | null;
+
+        //Add virtual association field
+    public readonly attachments?: any[];
+
 }
 
 Message.init(
@@ -30,7 +34,7 @@ Message.init(
         },
         content: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
 
         },
         userId: {

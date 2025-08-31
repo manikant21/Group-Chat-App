@@ -93,8 +93,9 @@ export const loginUser = async (req: Request<{}, {}, LoginUserRequestBody>, res:
         // console.log(token);
         
         const userId = checkEmail.id;
+        const name = checkEmail.name;
 
-        return res.status(201).json({ msg: "User logged in succcessfully!", token, userId })
+        return res.status(201).json({ msg: "User logged in succcessfully!", token, userId , name});
 
     } catch (error) {
         console.error("Login error:", error);

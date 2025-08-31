@@ -3,6 +3,7 @@ import { Message } from "./messages.model.js";
 import { Group } from "./group.model.js";
 import { UserGroup } from "./usergroup.model.js";
 import { GroupAdmin } from "./groupadmin.model.js";
+import { Attachment } from "./attachment.model.js";
 
 
 User.hasMany(Message, { foreignKey: "userId" });
@@ -44,5 +45,8 @@ GroupAdmin.belongsTo(User, { foreignKey: "userId" });
 Group.hasMany(GroupAdmin, { foreignKey: "groupId" });
 GroupAdmin.belongsTo(Group, { foreignKey: "groupId"});
 
+Message.hasMany(Attachment, { as: "attachments", foreignKey: "messageId" });
+Attachment.belongsTo(Message, { foreignKey: "messageId" });
 
-export { User, Message, Group, UserGroup, GroupAdmin };
+
+export { User, Message, Group, UserGroup, GroupAdmin, Attachment };

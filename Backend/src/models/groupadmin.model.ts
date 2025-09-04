@@ -16,7 +16,7 @@ export class GroupAdmin extends Model<groupAdminAttributes, groupAdminCreationAt
     groupId!: number;
     userId!: number
 
-    // public Users?: User[];
+  
      public User?: User;
     public Group?: Group;
 

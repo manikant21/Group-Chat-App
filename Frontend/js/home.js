@@ -40,6 +40,7 @@ const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 const logout_btn = document.getElementById("logout_btn");
 const seeOlderBtn = document.getElementById("seeOlderBtn");
+const seeArchivedBtn= document.getElementById("seeArchivedBtn");
 const seeUsersBtn = document.getElementById("seeUsersBtn");
 const userListModal = document.getElementById("userListModal");
 const userList = document.getElementById("userList");
@@ -48,6 +49,27 @@ const openBtn = document.getElementById("openModalBtn");
 const closeBtn = document.getElementById("closeModalBtn");
 const form = document.getElementById("createGroupForm");
 const usersSelect = document.getElementById("groupUsers");
+const archivedPagination = document.getElementById("archivedPagination");
+const prevArchivedBtn = document.getElementById("prevArchivedBtn");
+const nextArchivedBtn = document.getElementById("nextArchivedBtn");
+const archivedPageInfo = document.getElementById("archivedPageInfo");
+const archivedGroupPagination = document.getElementById("archivedGroupPagination");
+const backToLiveBtn = document.getElementById("backToLiveBtn");
+const seeArchivedGroupBtn= document.getElementById("seeArchivedGroupBtn");
+const prevArchivedGroupBtn = document.getElementById("prevArchivedGroupBtn");
+const nextArchivedGroupBtn = document.getElementById("nextArchivedGroupBtn");
+const archivedGroupPageInfo = document.getElementById("archivedGroupPageInfo");
+
+
+let archivedPage = 1;
+const archivedLimit = 10;
+let archivedTotalPages = 1
+
+let archivedGroupPage = 1;
+const archivedGroupLimit = 10;
+let archivedGroupTotalPages = 1
+
+
 
 // Chat modal elements (group chat)
 const chatModal = document.getElementById("chatModal");
@@ -201,13 +223,12 @@ if (socket) {
     // ===== GLOBAL CHAT =====
     socket.on("new_global_message", (msg) => {
         console.log(" Received new global message:", msg);
-        // Check if message already exists in UI by ID (if available)
         if (msg.id && document.querySelector(`[data-message-id="${msg.id}"]`)) {
             console.log("Message already exists in UI, skipping...");
             return;
         }
         let messages = JSON.parse(localStorage.getItem("messages") || "[]");
-        // Prevent duplicate messages in localStorage
+       
         if (msg.id && messages.some((m) => m.id === msg.id)) {
             console.log("Message already exists in localStorage, skipping...");
             return;
@@ -232,7 +253,6 @@ if (socket) {
         // console.log("Message sender ID:", message.userId);
         // console.log("Current user from token:", currentUser);
         
-        // Check if this is your own message vs others
         if (message.User?.name === currentUser.name || message.userId ===  Number(localStorage.getItem("userId"))) {
             console.log(" This is MY message");
         } else {
@@ -242,8 +262,6 @@ if (socket) {
 
         if (message.groupId == currentGroupId) {
            
-
-            // Check if the message is already on the UI by its ID or data attribute
             if (message.id && (document.getElementById(message.id) || document.querySelector(`[data-message-id="${message.id}"]`))) {
                 console.log("Message already exists on UI, skipping append.");
                 return;
@@ -290,7 +308,6 @@ chatForm.addEventListener("submit", async (e) => {
     if (socket && socket.connected) {
         console.log("Sending group message to group:", currentGroupId);
         
-        // REMOVED optimistic UI update - let server handle it
         socket.emit("new_group_message", { groupId: currentGroupId, message, attachments });
 
         chatInput_group.value = "";
@@ -318,7 +335,7 @@ async function openChat(groupId, groupName) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     if (socket && socket.connected) {
-      console.log("🔗 Joining group room:", groupId);
+      console.log("Joining group room:", groupId);
       socket.emit("join_group", groupId);
 
       if (!joinedGroups.includes(groupId)) {
@@ -329,6 +346,11 @@ async function openChat(groupId, groupName) {
       console.error(" Socket not connected, cannot join group");
 
     }
+
+    archivedGroupPage = 1;
+    archivedGroupPagination.classList.add("hidden");
+    backToLiveBtn.classList.add("hidden");
+    seeArchivedGroupBtn.classList.remove("hidden");
 
     chatModal.classList.remove("hidden");
   } catch (err) {
@@ -342,14 +364,13 @@ const closeChatBtn = document.getElementById("closeChatBtn");
 if (closeChatBtn) {
     closeChatBtn.addEventListener("click", () => {
         chatModal.classList.add("hidden");
-        // We don't need to explicitly leave the room here. The backend can handle cleanup on disconnect.
     });
 }
 
 // ---------------------- Create Group Modal ----------------------
 if (openBtn) {
     openBtn.addEventListener("click", async () => {
-        await loadUsers(); // fetch all users before showing modal
+        await loadUsers(); 
         modal.classList.remove("hidden");
     });
 }
@@ -415,7 +436,6 @@ if (form) {
             alert(" Group created successfully!");
             modal.classList.add("hidden");
             form.reset();
-            // refresh groups list
             await fetchGroup();
             groupsVisible = true;
         } catch (err) {
@@ -552,8 +572,7 @@ async function fetchGroup() {
                         return;
                     }
                     const modal = document.getElementById("addAdminModal");
-                    modal.classList.remove("hidden"); // show modal first
-
+                    modal.classList.remove("hidden"); 
                     const modalAdminList = document.getElementById("modalAdminList");
                     modalAdminList.innerHTML = members
                         .map(
@@ -580,7 +599,7 @@ async function fetchGroup() {
         });
 
 
-        // Close Add Admin modal function
+        
         function closeAddAdminModal() {
             document.getElementById("addAdminModal").classList.add("hidden");
         }
@@ -592,7 +611,7 @@ async function fetchGroup() {
             if (e.target.id === "addAdminModal") closeAddAdminModal();
         });
 
-        // Add admin button click handeler
+        
         document.getElementById("modalAddAdminBtn").addEventListener("click", async (e) => {
             const groupId = e.currentTarget.getAttribute("data-group-id");
             const selected = Array.from(document.querySelectorAll("#modalAdminList input[type='checkbox']:checked"))
@@ -604,7 +623,7 @@ async function fetchGroup() {
             }
 
             try {
-                const res = await addAdminsToGroup(groupId, selected); // implement this API call
+                const res = await addAdminsToGroup(groupId, selected); 
                 console.log("Add admins payload:", { groupId, selected });
                 if (res) {
                     alert("Admins added!");
@@ -620,9 +639,6 @@ async function fetchGroup() {
                 alert("Failed to add admins.");
             }
         });
-
-
-
 
         //Remove admin click handler
         document.querySelectorAll(".removeAdminBtn").forEach((btn) => {
@@ -984,7 +1000,6 @@ function appendGroupMessage(message) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-
 // ---------------------- Global Chat Submit ----------------------
 sendBtn.addEventListener("click", async () => {
     const message = chatInput.value.trim();
@@ -993,7 +1008,7 @@ sendBtn.addEventListener("click", async () => {
     const attachments = await uploadFiles(fileInput);
 
     if (socket && socket.connected) {
-        // REMOVED optimistic UI update - let server handle it
+      
         socket.emit("new_global_message", { message, attachments });
 
         chatInput.value = "";
@@ -1005,28 +1020,51 @@ sendBtn.addEventListener("click", async () => {
 });
 
 
-// Fetch initial 10 messages (on page load or refresh)
 async function fetchMessageData() {
     try {
+          if (getChatMode() !== "live") return;
+          const existingMessages = JSON.parse(localStorage.getItem("messages") || "[]");
+            let response;
+             if (existingMessages.length === 0) {
+        
+            response = await axios.get(`${BASE_URL}/message/getmessage`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+        }
+        else{
+
+        
         const maxId = getMaxIdFromLocalStorage();
-        const response = await axios.get(`${BASE_URL}/message/getmessage?lastMessageId=${maxId}`, {
+        console.log(maxId);
+        response = await axios.get(`${BASE_URL}/message/getmessage?lastMessageId=${maxId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
+
+    }
+        console.log(response);
         const newMessages = response.data.data || [];
+        console.log(newMessages);
 
-        // Get existing messages from localStorage
-        const existingMessages = JSON.parse(localStorage.getItem("messages") || "[]");
+        if(newMessages.length==0 && existingMessages.length === 0) {
+            let h2 = document.createElement("h2");
+            h2.innerHTML= "No New message for u";
+            h2.classList="flex justify-center font-bold text-gray-500"
+            chatArea.appendChild(h2);
+            console.log("zero");
+             seeOlderBtn.style.display = "none";
+             seeArchivedBtn.style.display = "block";
+            return;
+        }
 
-        // Merge existing + new, then keep last 10
         const allMessages = [...existingMessages, ...newMessages];
         const last10Messages = allMessages.slice(-10);
 
-        // Save back to localStorage
+
         localStorage.setItem("messages", JSON.stringify(last10Messages));
 
-        // Render UI
+  
         chatArea.innerHTML = "";
         last10Messages.slice(-10).forEach(msg => appendGlobalMessage(msg));
     } catch (error) {
@@ -1034,8 +1072,69 @@ async function fetchMessageData() {
     }
 }
 
+seeArchivedGroupBtn.addEventListener("click", async () => {
+  archivedGroupPage = 1;
+  await fetchArchivedGroupMessages(archivedGroupPage);
 
 
+  seeArchivedGroupBtn.classList.add("hidden");
+  backToLiveBtn.classList.remove("hidden");
+  archivedGroupPagination.classList.remove("hidden");
+});
+
+backToLiveBtn.addEventListener("click", async () => {
+
+  await openChat(currentGroupId, chatGroupName.textContent);
+
+  backToLiveBtn.classList.add("hidden");
+  seeArchivedGroupBtn.classList.remove("hidden");
+  archivedGroupPagination.classList.add("hidden");
+});
+
+prevArchivedGroupBtn.addEventListener("click", async () => {
+  if (archivedGroupPage > 1) {
+    archivedGroupPage--;
+    await fetchArchivedGroupMessages(archivedGroupPage);
+  }
+});
+
+nextArchivedGroupBtn.addEventListener("click", async () => {
+    if(archivedGroupPage < archivedGroupTotalPages) {
+         archivedGroupPage++;
+         await fetchArchivedGroupMessages(archivedGroupPage);
+    }
+ 
+});
+
+async function fetchArchivedGroupMessages(page) {
+  try {
+    const tokenLocal = localStorage.getItem("token");
+    const res = await axios.get(
+      `${BASE_URL}/archived/${currentGroupId}/groupmessage?page=${page}&limit=${archivedGroupLimit}`,
+      {
+        headers: { Authorization: `Bearer ${tokenLocal}` },
+      }
+    );
+
+    const { data, pagination } = res.data;
+
+    chatMessages.innerHTML = "";
+    data.forEach((msg) => appendGroupMessage(msg));
+
+     archivedGroupPage = pagination.page;
+    archivedGroupTotalPages = pagination.pages;
+
+
+
+    archivedGroupPageInfo.textContent = `Page ${pagination.page} of ${pagination.pages}`;
+
+    prevArchivedGroupBtn.disabled = pagination.page <= 1;
+    nextArchivedGroupBtn.disabled = pagination.page >= pagination.pages;
+  } catch (err) {
+    console.error("Error fetching archived messages:", err);
+    alert("Failed to load archived messages");
+  }
+}
 
 // ---------------------- See older messages ----------------------
 seeOlderBtn.addEventListener("click", async () => {
@@ -1065,6 +1164,65 @@ seeOlderBtn.addEventListener("click", async () => {
     }
 });
 
+
+function setChatMode(mode) {
+  localStorage.setItem("chatMode", mode);
+}
+
+function getChatMode() {
+  return localStorage.getItem("chatMode") || "live"; 
+}
+
+
+
+seeArchivedBtn.addEventListener("click", async () => {
+  archivedPage = 1;
+  await fetchArchivedMessages(archivedPage);
+  archivedPagination.classList.remove("hidden");
+});
+
+prevArchivedBtn.addEventListener("click", async () => {
+  if (archivedPage > 1) {
+    archivedPage--;
+    await fetchArchivedMessages(archivedPage);
+  }
+});
+
+nextArchivedBtn.addEventListener("click", async () => {
+  if (archivedPage < archivedTotalPages) {
+    archivedPage++;
+    await fetchArchivedMessages(archivedPage);
+  }
+});
+
+async function fetchArchivedMessages(page) {
+  try {
+    setChatMode("archived");
+    localStorage.removeItem("messages"); 
+    const res = await axios.get(`${BASE_URL}/archived/globalmessage?page=${page}&limit=${archivedLimit}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const { data, pagination } = res.data;
+    console.log(data);
+
+    chatArea.innerHTML = "";
+    data.forEach(msg => appendGlobalMessage(msg));
+
+     archivedPage = pagination.page;
+    archivedTotalPages = pagination.pages;
+
+    archivedPageInfo.textContent = `Page ${pagination.page} of ${pagination.pages}`;
+
+
+    prevArchivedBtn.disabled = pagination.page <= 1;
+    
+    nextArchivedBtn.disabled = pagination.page >= pagination.pages;
+  } catch (error) {
+    console.error("Error fetching archived messages:", error);
+  }
+}
+
 // ---------------------- See all users modal ----------------------
 seeUsersBtn.addEventListener("click", async () => {
     // defensive checks
@@ -1074,10 +1232,10 @@ seeUsersBtn.addEventListener("click", async () => {
     }
 
     try {
-        // Toggle the modal visibility
+        
         userListModal.classList.toggle("hidden");
 
-        // If modal is now visible and empty, fetch users
+        
         if (!userListModal.classList.contains("hidden") && userList.childElementCount === 0) {
             const response = await axios.get(`${BASE_URL}/user/all`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -1127,6 +1285,7 @@ window.addEventListener("beforeunload", () => {
 
 // ---------------------- Initial load ----------------------
 window.addEventListener("DOMContentLoaded", () => {
+    setChatMode("live");
     fetchMessageData();
 });
 

@@ -1,4 +1,4 @@
-import { User, Group, Message, UserGroup, GroupAdmin } from "../models/index.model.js";
+import { User, Group, Message, UserGroup, GroupAdmin, ArchivedMessage } from "../models/index.model.js";
 import { sequelize } from "../config/db.config.js";
 import { Model, NUMBER, Op } from 'sequelize';
 import { Request, Response } from "express";
@@ -22,7 +22,7 @@ export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(400).json({ message: 'Group name and member IDs are required' });
         }
 
-        // create the group with ownerId
+    
         const group = await Group.create(
             {
                 name: groupName,
@@ -32,7 +32,7 @@ export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
             { transaction }
         );
 
-        // add owner and other members to the group
+ 
         const allUserIds = [ownerId, ...memberIds];
         const userGroupEntries = allUserIds.map((userId) => ({
             userId,
@@ -46,7 +46,7 @@ export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
             userId: ownerId
         }, { transaction });
 
-        //commit transaction
+    
         await transaction.commit();
         res.status(201).json({ message: 'Group created successfully', group });
 
@@ -167,22 +167,22 @@ export const getAvailableUsersForGroup = async (req: AuthenticatedRequest, res: 
             return res.status(400).json({ error: "groupId is required" });
         }
 
-        // Step 1: Get all userIds already in this group
+      
         const existingMembers = await UserGroup.findAll({
             where: { groupId },
-            attributes: ["userId"], // only fetch userId column
+            attributes: ["userId"],
         });
 
         const existingUserIds = existingMembers.map(member => member.userId);
 
-        // Step 2: Fetch users who are NOT in the group
+        
         const availableUsers = await User.findAll({
             where: {
                 id: {
                     [Op.notIn]: existingUserIds.length > 0 ? existingUserIds : [0], 
                 },
             },
-            attributes: ["id", "name", "email"], // choose fields you need
+            attributes: ["id", "name", "email"], 
         });
 
 
@@ -299,12 +299,12 @@ export const fetchAdmin = async (req: AuthenticatedRequest, res: Response) => {
             },
             include: [{
                 model: User,
-                attributes: ['id', 'name', 'email']  // Include user details
+                attributes: ['id', 'name', 'email']  
             }],
-            order: [['createdAt', 'ASC']]  // Order by when they became admin
+            order: [['createdAt', 'ASC']] 
         });
 
-        // Also get the group owner info
+       
         const group = await Group.findByPk(groupId, {
             include: [{
                 model: User,
@@ -317,7 +317,7 @@ export const fetchAdmin = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(404).json({ message: "Group not found" });
         }
 
-        // Format the response
+
         const response = {
             groupInfo: {
                 id: group.id,
@@ -419,14 +419,14 @@ export const getGroupMembers = async (req: AuthenticatedRequest, res: Response) 
 
         const existingUserIds = existingMembers.map(member => member.userId);
 
-        // Step 2: Fetch users who are in the group
+
         const availableUsers = await User.findAll({
             where: {
                 id: {
                     [Op.in]: existingUserIds.length > 0 ? existingUserIds : [0], 
                 },
             },
-            attributes: ["id", "name", "email"], // choose fields you need
+            attributes: ["id", "name", "email"],
         });
 
         return res.status(200).json({availableUsers});
@@ -481,7 +481,7 @@ export const getGroupMembersWithAdminStatus = async (req: AuthenticatedRequest, 
     try {
         const { groupId } = req.params;
 
-        //  Get all members from UserGroup + their user details
+  
         const members = await UserGroup.findAll({
             where: { groupId: Number(groupId) },
             include: [
@@ -498,7 +498,7 @@ export const getGroupMembersWithAdminStatus = async (req: AuthenticatedRequest, 
             return res.status(404).json({ message: "No members found for this group" });
         }
 
-        //  Get all admins for this group
+ 
         const admins = await GroupAdmin.findAll({
             where: { groupId: Number(groupId) },
             attributes: ["userId"],
@@ -529,7 +529,6 @@ export const deleteGroup = async (req: AuthenticatedRequest, res: Response) => {
     const userId: number = req.user.id;
     const { groupId } = req.params;
 
-    // 1. Check ownership
     const group = await Group.findOne({
       where: { id: groupId, ownerId: userId },
       transaction
@@ -540,7 +539,7 @@ export const deleteGroup = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(401).json({ message: "User is not authorized to delete this group!" });
     }
 
-    // 2. Delete related records (if cascade isn’t enabled)
+  
     await Message.destroy({ where: { groupId }, transaction });
     await UserGroup.destroy({ where: { groupId }, transaction });
     await GroupAdmin.destroy({ where: { groupId }, transaction });

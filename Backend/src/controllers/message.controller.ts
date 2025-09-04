@@ -43,46 +43,94 @@ export const messageByAUser = async (req: AuthenticatedRequest & { body: userMes
     }
 }
 
+// export const getMessageByAUser = async (req: AuthenticatedRequest, res: Response) => {
+//     try {
+//         const userId: number = req.user.id;
+//         const maxId = req.query.lastMessageId;
+//         let message;
+//         if (!maxId || isNaN(Number(maxId))) {
+//             // First time OR no messages in localStorage
+//             message = await Message.findAll({
+//                 where: { groupId: null },
+//                 include: [
+//                     { model: User, attributes: ["name"] },
+//                     { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+//                 ],
+//                 limit: 10,
+//                 order: [["id", "DESC"]],
+//             });
+
+//             return res.status(200).json({ data: message.reverse() });
+
+//         }
+//         else {
+//             message = await Message.findAll({
+//                 where: {
+//                     groupId: null,
+//                     id: {
+//                         [Op.gt]: Number(maxId)
+//                     }
+//                 },
+//                 include: [
+//                     { model: User, attributes: ["name"] },
+//                     { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+//                 ],
+//                 limit: 10,
+//                 order: [["id", "DESC"]],
+//             })
+//             console.log(message);
+//         }
+
+//         return res.status(201).json({ data: message.reverse() });
+//     } catch (error) {
+//         console.error("Fetching Message Error:", error);
+//         return res.status(500).json("Something went wrong");
+//     }
+// }
+
 export const getMessageByAUser = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const userId: number = req.user.id;
-        const maxId = req.query.lastMessageId;
-        let message;
-        if (maxId == undefined || isNaN(Number(maxId))) {
-            message = await Message.findAll({
-                where: {
-                    groupId: null  // Only fetch global messages
-                },
+        const maxId = req.query.lastMessageId ? Number(req.query.lastMessageId) : undefined;
+
+        let messages;
+
+        if (!maxId || isNaN(maxId)) {
+            // ✅ Initial load: fetch latest 10 global messages
+            messages = await Message.findAll({
+                where: { groupId: null },
                 include: [
                     { model: User, attributes: ["name"] },
                     { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
                 ],
-                limit: 10,
                 order: [["id", "DESC"]],
-            })
-            return res.status(201).json({ data: message.reverse() });
-        }
-        else {
-            message = await Message.findAll({
-                where: {
-                    groupId: null,
-                    id: {
-                        [Op.gt]: Number(maxId)
-                    }
-                },
-                include: [
-                    { model: User, attributes: ["name"] },
-                    { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
-                ],
-            })
+                limit: 10,
+            });
+            console.log(messages)
+
+            // Return in ascending order for correct chat flow
+            return res.status(200).json({ data: messages.reverse() });
         }
 
-        return res.status(201).json({ data: message });
+        // ✅ Subsequent fetch: fetch only messages newer than lastMessageId
+        messages = await Message.findAll({
+            where: {
+                groupId: null,
+                id: { [Op.gt]: maxId }
+            },
+            include: [
+                { model: User, attributes: ["name"] },
+                { model: Attachment, as: "attachments", attributes: ["fileUrl", "fileName", "fileType", "size"] }
+            ],
+            order: [["id", "ASC"]],
+        });
+        console.log(messages);
+
+        return res.status(200).json({ data: messages });
     } catch (error) {
         console.error("Fetching Message Error:", error);
         return res.status(500).json("Something went wrong");
     }
-}
+};
 
 
 export const getOlderMessages = async (req: AuthenticatedRequest, res: Response) => {

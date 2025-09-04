@@ -7,6 +7,7 @@ import { router as apiRoute } from "./routes/index.js";
 import cors from "cors";
 import { registerMessageHandlers } from "./services/socket.service.js";
 import { init as initIo, getIo } from "./services/socketManager.js"; // Import your manager
+import "./services/corn.dervice.js";
 
 const app = express();
 const httpServer = createServer(app);

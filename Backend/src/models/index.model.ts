@@ -4,6 +4,9 @@ import { Group } from "./group.model.js";
 import { UserGroup } from "./usergroup.model.js";
 import { GroupAdmin } from "./groupadmin.model.js";
 import { Attachment } from "./attachment.model.js";
+import { ArchivedMessage } from "./archived_messages.mode.js";
+import { ArchivedAttachment } from "./archived_attachment.model.js";
+
 
 
 User.hasMany(Message, { foreignKey: "userId" });
@@ -49,4 +52,26 @@ Message.hasMany(Attachment, { as: "attachments", foreignKey: "messageId" });
 Attachment.belongsTo(Message, { foreignKey: "messageId" });
 
 
-export { User, Message, Group, UserGroup, GroupAdmin, Attachment };
+
+// ArchivedMessage relations
+User.hasMany(ArchivedMessage, { foreignKey: "userId" });
+ArchivedMessage.belongsTo(User, { foreignKey: "userId" });
+Group.hasMany(ArchivedMessage, { foreignKey: "groupId" });
+ArchivedMessage.belongsTo(Group, { foreignKey: "groupId" });
+
+// ArchivedAttachment relations
+
+ArchivedMessage.hasMany(ArchivedAttachment, {
+  foreignKey: "archivedMessageId",
+  as: "attachments",
+});
+
+ArchivedAttachment.belongsTo(ArchivedMessage, {
+  foreignKey: "archivedMessageId",
+   as: "message"
+});
+
+
+
+
+export { User, Message, Group, UserGroup, GroupAdmin, Attachment,  ArchivedMessage, ArchivedAttachment};

@@ -15,11 +15,13 @@ interface messageCreationAttributes extends Optional<messageAttributes, 'id'> { 
 
 export class Message extends Model<messageAttributes, messageCreationAttributes> implements messageAttributes {
     id!: number;
-    content?: string| null;
+    content?: string | null;
     userId!: number;
     groupId?: number | null;
 
-        //Add virtual association field
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+
     public readonly attachments?: any[];
 
 }

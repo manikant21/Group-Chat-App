@@ -21,7 +21,7 @@ export const uploadFiles = async (req: AuthenticatedRequest, res: Response) => {
     for (const file of req.files as Express.Multer.File[]) {
       const key = `uploads/${Date.now()}-${file.originalname}`;
 
-      // Upload to S3
+    
       await s3.send(
         new PutObjectCommand({
           Bucket: S3_BUCKET,

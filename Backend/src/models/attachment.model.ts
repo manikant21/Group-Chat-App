@@ -5,10 +5,10 @@ import { Message } from "./messages.model.js";
 interface attachmentAttributes {
   id: number;
   messageId: number;
-  fileUrl: string;       // S3 URL
-  fileType: string;      // e.g. "image/png", "application/pdf"
-  fileName?: string;     // original filename (optional)
-  size?: number;         // size in bytes (optional)
+  fileUrl: string;       
+  fileType: string;      
+  fileName?: string;    
+  size?: number;       
   createdAt?: Date;
   updatedAt?: Date;
 }

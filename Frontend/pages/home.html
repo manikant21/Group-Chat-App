@@ -21,9 +21,13 @@
   </header>
 
   <!-- main fills remaining space; inner scroll areas manage overflow -->
-  <main class="flex-1 w-full flex flex-col items-center p-4 max-w-2xl w-full mx-auto overflow-hidden">
+  <main class="flex-1 w-full flex flex-col items-center p-4 max-w-5xl w-full mx-auto overflow-hidden">
 
     <div class="flex flex-wrap gap-3 mb-4">
+      <button id="seeArchivedBtn" class="px-4 py-1 bg-pink-200 rounded text-sm text-black hover:bg-pink-300">
+        See Archived Messages
+      </button>
+
       <button id="seeOlderBtn" class="px-4 py-1 bg-gray-200 rounded text-sm text-black hover:bg-gray-300">
         See Older Messages
       </button>
@@ -53,6 +57,14 @@
 
     <!-- only this area scrolls for messages -->
     <div id="chatArea" class="flex flex-col gap-2 p-4 w-full flex-1 min-h-0 overflow-y-auto"></div>
+
+    <!-- Pagination controls for archived messages -->
+    <div id="archivedPagination" class="hidden flex justify-center items-center gap-4 mt-2">
+      <button id="prevArchivedBtn" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">Previous</button>
+      <span id="archivedPageInfo" class="text-sm text-gray-600"></span>
+      <button id="nextArchivedBtn" class="px-3 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300">Next</button>
+    </div>
+
   </main>
 
   <!-- footer fixed by flex layout -->
@@ -179,23 +191,70 @@
   </div>
 
   <!-- Chat Modal -->
-  <div id="chatModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+  <!-- <div id="chatModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
     <div class="bg-white rounded-lg w-full max-w-lg shadow-lg flex flex-col h-[80vh]">
       <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
         <h2 id="chatGroupName" class="font-bold">Group Chat</h2>
         <button id="closeChatBtn" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>
+      <div id="chatMessages" class="p-4 flex-1 overflow-y-auto space-y-2"></div> -->
+
+  <!-- Archived Controls -->
+  <!-- <div class="p-2 border-t flex justify-between items-center bg-gray-50">
+      <button id="seeArchivedGroupBtn" class="text-sm text-blue-600 hover:underline">
+         See Archived Messages
+      </button>
+      <div id="archivedGroupPagination" class="hidden flex items-center gap-2">
+        <button id="prevArchivedGroupBtn" class="px-2 py-1 border rounded text-sm">Prev</button>
+        <span id="archivedGroupPageInfo" class="text-xs text-gray-600"></span>
+        <button id="nextArchivedGroupBtn" class="px-2 py-1 border rounded text-sm">Next</button>
+      </div>
+    </div> -->
+
+  <!-- Chat Modal -->
+  <div id="chatModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg shadow-lg flex flex-col h-[80vh]">
+
+      <!-- Header -->
+      <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
+        <h2 id="chatGroupName" class="font-bold">Group Chat</h2>
+
+        <!-- Archived Controls in Header -->
+        <div class="flex items-center gap-3">
+          <button id="seeArchivedGroupBtn" class="text-sm text-blue-600 hover:underline">
+            See Archived
+          </button>
+          </button>
+          <button id="backToLiveBtn" class="hidden text-sm text-green-600 hover:underline">
+            Back to Live Chat
+          </button>
+          <div id="archivedGroupPagination" class="hidden flex items-center gap-2">
+            <button id="prevArchivedGroupBtn" class="px-2 py-1 border rounded text-xs">Prev</button>
+            <span id="archivedGroupPageInfo" class="text-xs text-gray-600"></span>
+            <button id="nextArchivedGroupBtn" class="px-2 py-1 border rounded text-xs">Next</button>
+          </div>
+          <button id="closeChatBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
+      </div>
+
+      <!-- Messages -->
       <div id="chatMessages" class="p-4 flex-1 overflow-y-auto space-y-2"></div>
+
       <form id="chatForm" class="p-4 border-t flex flex-shrink-0">
-        <input id="chatInput_group" type="text" placeholder="Type a message..."
-          class="flex-1 border rounded px-3 py-2 mr-2" />
-        <input type="file" id="fileInput_group" multiple class="hidden" />
-        <button type="button" id="attachBtn_group" class="text-gray-600 hover:text-blue-500 mr-2">
-          <i class="fas fa-paperclip"></i>
-        </button>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
-      </form>
+    <input id="chatInput_group" type="text" placeholder="Type a message..."
+      class="flex-1 border rounded px-3 py-2 mr-2" />
+    <input type="file" id="fileInput_group" multiple class="hidden" />
+    <button type="button" id="attachBtn_group" class="text-gray-600 hover:text-blue-500 mr-2">
+      <i class="fas fa-paperclip"></i>
+    </button>
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+  </form>
     </div>
+  </div>
+
+
+  
+  </div>
   </div>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
